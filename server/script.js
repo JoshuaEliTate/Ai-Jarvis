@@ -5,21 +5,21 @@ const { Configuration, OpenAIApi } = require("openai");
 require('dotenv').config()
 const axios = require('axios');
 let audio = ""
-
+let aiResponse = ""
 const configuration = new Configuration({
     // organization: "org-1l6kIkYyw0yBegZcKwdNEvzb",
-    apiKey: "API-KEY",
+    apiKey: "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",
 });
 const openai = new OpenAIApi(configuration);
 
 
 
 async function runChatCompletion() {
-  const OPENAI_API_KEY = 'API-KEY';
+  const OPENAI_API_KEY = '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';
   const url = 'https://api.openai.com/v1/chat/completions';
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer API-KEY`
+    'Authorization': `Bearer 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`
   };
 //this is getting the text version of the audio ready to be sent to the AI
   const data = {
@@ -34,13 +34,12 @@ async function runChatCompletion() {
     const response = await axios.post(url, data, { headers });
     const result = response.data;
     const messageContent = result.choices[0].message.content;
-    console.log(result.choices[0].message.content);
-
+    console.log(messageContent);
+    receiveAudio(messageContent);
   } catch (error) {
     console.error('Error:', error.response.data);
   }
 }
-
 //this converts a mp3 into audio and puts that information onto an audio variable
 const audioToText = async()=>{
 const resp = await openai.createTranscription(
@@ -61,69 +60,35 @@ async function main() {
 
 
 
+function receiveAudio(aiText) {
+  const url = 'https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM?optimize_streaming_latency=4';
+  const headers = {
+    'accept': 'audio/mpeg',
+    'xi-api-key': '49da97ca577b7decf95707c56790d575',
+    'Content-Type': 'application/json'
+  };
+  const payload = {
+    "text": `${aiText}`,
+    "model_id": "eleven_monolingual_v1",
+    "voice_settings": {
+      "stability": 0,
+      "similarity_boost": 0
+    }
+  };
 
+  axios.post(url, payload, { headers, responseType: 'arraybuffer' })
+    .then(response => {
+      const audioContent = Buffer.from(response.data, 'binary');
+      fs.writeFile('received_audio.mp3', audioContent, 'binary', err => {
+        if (err) {
+          console.error('Error:', err);
+        } else {
+          console.log('Audio received and saved as received_audio.mp3');
+        }
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error.response.status);
+    });
+}
 
-
-// const { Configuration, OpenAIApi } = require('openai');
-// require('dotenv').config();
-
-// const configuration = new Configuration({
-//   organization: 'org-1l6kIkYyw0yBegZcKwdNEvzb',
-//   apiKey: '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',
-// });
-// const openai = new OpenAIApi(configuration);
-
-// const axios = require('axios');
-// const readline = require('readline');
-
-// const rl = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout,
-// });
-
-// async function runChatCompletion() {
-//   const OPENAI_API_KEY = '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';
-//   const url = 'https://api.openai.com/v1/chat/completions';
-//   const headers = {
-//     'Content-Type': 'application/json',
-//     'Authorization': `Bearer ${OPENAI_API_KEY}`,
-//   };
-//   const messages = [];
-//   const data = {
-//     model: 'gpt-3.5-turbo',
-//     messages: messages,
-//     temperature: 0.7,
-//   };
-
-//   try {
-//     async function processUserInput(userInput) {
-//       if (userInput.toLowerCase() === 'end') {
-//         console.log('Conversation ended.');
-//         rl.close();
-//         return;
-//       }
-      
-//       messages.push({ role: 'user', content: userInput });
-//       data.messages = messages;
-//       const response = await axios.post(url, data, { headers });
-//       const result = response.data;
-//       const assistantResponse = result.choices[0].message.content;
-//       console.log('Assistant:', assistantResponse);
-      
-//       rl.question('User: ', processUserInput);
-//     }
-    
-//     rl.question('User: ', (userInput) => {
-//       if (userInput.trim() === '') {
-//         console.log('No input provided. Conversation ended.');
-//         rl.close();
-//       } else {
-//         processUserInput(userInput);
-//       }
-//     });
-//   } catch (error) {
-//     console.error('Error:', error.response.data);
-//   }
-// }
-
-// runChatCompletion();
