@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const configuration = new Configuration({
   organization: 'org-1l6kIkYyw0yBegZcKwdNEvzb',
-  apiKey: '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',
+  apiKey: 'API-KEY',
 });
 const openai = new OpenAIApi(configuration);
 
@@ -17,7 +17,7 @@ const rl = readline.createInterface({
 });
 
 async function runChatCompletion() {
-  const OPENAI_API_KEY = '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';
+  const OPENAI_API_KEY = 'API-KEY';
   const url = 'https://api.openai.com/v1/chat/completions';
   const headers = {
     'Content-Type': 'application/json',

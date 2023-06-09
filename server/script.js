@@ -8,18 +8,18 @@ let audio = ""
 let aiResponse = ""
 const configuration = new Configuration({
     // organization: "org-1l6kIkYyw0yBegZcKwdNEvzb",
-    apiKey: "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",
+    apiKey: "API-KEY",
 });
 const openai = new OpenAIApi(configuration);
 
 
 
 async function runChatCompletion() {
-  const OPENAI_API_KEY = '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';
+  const OPENAI_API_KEY = 'API-KEY';
   const url = 'https://api.openai.com/v1/chat/completions';
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer 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`
+    'Authorization': `Bearer API-KEY`
   };
 //this is getting the text version of the audio ready to be sent to the AI
   const data = {
