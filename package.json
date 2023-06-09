@@ -1,0 +1,15 @@
+{
+  "name": "aiproject",
+  "version": "1.0.0",
+  "description": "Ai project that you can talk to and it responds",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.1.4",
+    "openai": "^3.2.1"
+  }
+}
