@@ -8,18 +8,19 @@ let audio = ""
 let aiResponse = ""
 const configuration = new Configuration({
     // organization: "org-1l6kIkYyw0yBegZcKwdNEvzb",
-    apiKey: "API-KEY",
+    apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
+require('dotenv').config();
 
 
 
 async function runChatCompletion() {
-  const OPENAI_API_KEY = 'API-KEY';
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
   const url = 'https://api.openai.com/v1/chat/completions';
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer API-KEY`
+    'Authorization': process.env.OPENAI_AUTH
   };
 //this is getting the text version of the audio ready to be sent to the AI
   const data = {
@@ -64,11 +65,11 @@ function receiveAudio(aiText) {
   const url = 'https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM?optimize_streaming_latency=4';
   const headers = {
     'accept': 'audio/mpeg',
-    'xi-api-key': '49da97ca577b7decf95707c56790d575',
+    'xi-api-key': process.env.XI_API_KEY,
     'Content-Type': 'application/json'
   };
   const payload = {
-    "text": `${aiText}`,
+    "text": `why isnt this working?`,
     "model_id": "eleven_monolingual_v1",
     "voice_settings": {
       "stability": 0,

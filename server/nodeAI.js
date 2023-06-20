@@ -3,8 +3,8 @@ const { Configuration, OpenAIApi } = require('openai');
 require('dotenv').config();
 
 const configuration = new Configuration({
-  organization: 'org-1l6kIkYyw0yBegZcKwdNEvzb',
-  apiKey: 'API-KEY',
+  organization: process.env.ORGANIZATION,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
@@ -17,11 +17,11 @@ const rl = readline.createInterface({
 });
 
 async function runChatCompletion() {
-  const OPENAI_API_KEY = 'API-KEY';
+  const OPEN_API_KEY = process.env.OPENAI_API_KEY;
   const url = 'https://api.openai.com/v1/chat/completions';
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${OPENAI_API_KEY}`,
+    'Authorization': `Bearer ${OPEN_API_KEY}`,
   };
   const messages = [];
   const data = {
