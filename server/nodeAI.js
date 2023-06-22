@@ -3,10 +3,10 @@ const { Configuration, OpenAIApi } = require('openai');
 require('dotenv').config();
 
 const configuration = new Configuration({
-  organization: process.env.ORGANIZATION,
-  apiKey: process.env.OPENAI_API_KEY,
+  // organization: process.env.ORGANIZATION,
+  apiKey: "",
 });
-const openai = new OpenAIApi(configuration);
+// const openai = new OpenAIApi(configuration);
 
 const axios = require('axios');
 const readline = require('readline');
@@ -17,15 +17,14 @@ const rl = readline.createInterface({
 });
 
 async function runChatCompletion() {
-  const OPEN_API_KEY = process.env.OPENAI_API_KEY;
   const url = 'https://api.openai.com/v1/chat/completions';
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${OPEN_API_KEY}`,
+    'Authorization': `Bearer `,
   };
   const messages = [];
   const data = {
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-3.5-turbo-16k-0613',
     messages: messages,
     temperature: 0.7,
   };

@@ -7,11 +7,9 @@ const axios = require('axios');
 let audio = ""
 let aiResponse = ""
 const configuration = new Configuration({
-    // organization: "org-1l6kIkYyw0yBegZcKwdNEvzb",
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey:  process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
-require('dotenv').config();
 
 
 
@@ -20,7 +18,7 @@ async function runChatCompletion() {
   const url = 'https://api.openai.com/v1/chat/completions';
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': process.env.OPENAI_AUTH
+    'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
   };
 //this is getting the text version of the audio ready to be sent to the AI
   const data = {
@@ -28,7 +26,8 @@ async function runChatCompletion() {
     messages: [
       { role: 'user', content: `${audio}?` }
     ],
-    temperature: 0.7
+    max_tokens : 100,
+    temperature: 1
   };
 //this posts the data from the data variable to the AI and runs it to get a response
   try {
@@ -41,6 +40,8 @@ async function runChatCompletion() {
     console.error('Error:', error.response.data);
   }
 }
+
+
 //this converts a mp3 into audio and puts that information onto an audio variable
 const audioToText = async()=>{
 const resp = await openai.createTranscription(
@@ -62,14 +63,14 @@ async function main() {
 
 
 function receiveAudio(aiText) {
-  const url = 'https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM?optimize_streaming_latency=4';
+  const url = 'https://api.elevenlabs.io/v1/text-to-speech/rXXkqBiJdKlYp8wOIbM4?optimize_streaming_latency=0';
   const headers = {
     'accept': 'audio/mpeg',
     'xi-api-key': process.env.XI_API_KEY,
     'Content-Type': 'application/json'
   };
   const payload = {
-    "text": `why isnt this working?`,
+    "text": `${aiText}`,
     "model_id": "eleven_monolingual_v1",
     "voice_settings": {
       "stability": 0,

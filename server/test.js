@@ -22,6 +22,7 @@ async function createAiResponse(userSpeech) {
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: `${userSpeech}?` }],
+      max_tokens : 75,
       temperature: 0.7,
     }, {
       headers: {
@@ -45,10 +46,10 @@ app.post('/outgoing-call', (req, res) => {
   twiml.say('Welcome to the automated response system. Please wait while we connect you.');
   twiml.gather({
     input: 'speech',
-    timeout: 15,
+    timeout: 5,
     action: '/gather-handler',
     method: 'POST',
-  }).say('Please say something after the beep. bip');
+  }).say('How may i assist you today?');
 
   res.type('text/xml');
   res.send(twiml.toString());
@@ -69,14 +70,14 @@ app.post('/gather-handler', async (req, res) => {
   }
 
   if (userSpeech) {
-    twiml.say("Hold on just a second")
-    // Handle the user's speech input
+
+
     const aiResponse = await createAiResponse(userSpeech);
     conversations[phoneNumber].aiResponse = aiResponse;
 
     const twiml = new twilio.twiml.VoiceResponse();
     twiml.say(aiResponse);
-    twiml.pause({ length: 4 }); // Add a pause after AI response
+    twiml.pause({ length: 1 }); // Add a pause after AI response
 
     // Gather user's speech input
     twiml.gather({
@@ -84,7 +85,8 @@ app.post('/gather-handler', async (req, res) => {
       timeout: 5,
       action: '/gather-handler',
       method: 'POST',
-    }).say('Please say something.');
+    }).say('How else can i assist you?.');
+
 
     res.type('text/xml');
     res.send(twiml.toString());
