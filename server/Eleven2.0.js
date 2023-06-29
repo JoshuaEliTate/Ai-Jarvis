@@ -19,7 +19,7 @@ const app = express();
 const twiml = new twilio.twiml.VoiceResponse();
 
 let messages = []
-
+var sdk = require("microsoft-cognitiveservices-speech-sdk");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
@@ -43,16 +43,16 @@ async function createAiResponse(phoneNumber, userText) {
   };
 
   // Push the new user message to the messages array before sending the data
-  messages.push({ role: 'assistant', content: userText });
-
-  // Transform the chat history into the messages array
+  messages.push({ role: 'user', content: userText });
 
   // Prepare the data for the AI
   const data = {
     model: 'gpt-3.5-turbo-16k-0613',
     messages: messages,
-    max_tokens: 100,
-    temperature: 1
+    max_tokens: 75,
+    temperature: .6,
+    frequency_penalty: 2,
+    presence_penalty: 2
   };
 
   // Post the data to the AI and get a response
@@ -61,63 +61,66 @@ async function createAiResponse(phoneNumber, userText) {
     const result = response.data;
     messageContent = result.choices[0].message.content;
     console.log(messageContent);
-    messageLength = messageContent.length * 30;
-    if (messageLength > 8500) {
-      messageLength = 8500;
-    } else if (messageLength <3000){
-      messageLength = 3000
-    }
     return messageContent;
   } catch (error) {
     console.error('Error:', error.response.data);
   }
 }
 
+
+
 async function createAudio(aiText) {
-  const url = 'https://api.elevenlabs.io/v1/text-to-speech/rXXkqBiJdKlYp8wOIbM4/stream?optimize_streaming_latency=2';
   console.log("audio creation started")
-  const headers = {
-    'accept': 'audio/mpeg',
-    'xi-api-key': process.env.XI_API_KEY,
-    'Content-Type': 'application/json'
-  };
-  const payload = {
-    "text": `${aiText}`,
-    "model_id": "eleven_monolingual_v1",
-    "voice_settings": {
-      "stability": 0,
-      "similarity_boost": 0
+
+  // The output audio file path.
+  const audioFile = "aiResponse.wav";
+
+  // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+  const speechConfig = sdk.SpeechConfig.fromSubscription('8eecc57fbd89473c85773181f6371254', 'westus');
+  const audioConfig = sdk.AudioConfig.fromAudioFileOutput(audioFile);
+
+  // The language of the voice that speaks.
+  speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural"; 
+
+  // Create the speech synthesizer.
+  let synthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
+
+  // Start the synthesizer and wait for a result.
+  synthesizer.speakTextAsync(
+    aiText,
+    function (result) {
+      if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
+        console.log("synthesis finished. Audio saved as " + audioFile);
+      } else {
+        console.error("Speech synthesis canceled, " + result.errorDetails +
+            "\nDid you set the speech resource key and region values?");
+      }
+      synthesizer.close();
+      synthesizer = null;
+    },
+    function (err) {
+      console.trace("err - " + err);
+      synthesizer.close();
+      synthesizer = null;
     }
-  };
-
-  axios.post(url, payload, { headers, responseType: 'arraybuffer' })
-    .then(response => {
-
-      const audioContent = Buffer.from(response.data, 'binary');
-      fs.writeFile('aiResponse.mp3', audioContent, 'binary', err => {
-        if (err) {
-          console.error('Error:', err);
-        } else {
-          console.log('Audio received and saved as aiResponse.mp3');
-        }
-      });
-    })
-    .catch(error => {
-      console.error('Error:', error.response.status);
-    });
+  );
+  console.log("Now synthesizing to: " + audioFile);
 }
+
+
+
 
 app.post('/callUser', async (req, res) => {
   const phoneNumber = req.body.Caller;
   console.log(req.body.Caller);
   console.log("call started");
-  messages = [ {"role": "system", "content": "You are an assistant that knows a bit about the user, you want to be personable in your responses. The user is a software engineer who enjoys hiking and reading science fiction novels."}];
+  messages = [ {"role": "system", "content": "First off, ONLY RESPOND TO THE NEWEST QUESTION ASKED, AND DO NOT REPLY WITH THE QUESTION IN YOUR RESPONSE. Please provide brief and concise answers, while still responding as if you are having a conversation with someone. you are friendly, engaging, empathetic, curious, and respectful. you try to understand the user's perspective and provide relevant and helpful information. you don't make assumptions or judgments, and you always try to be understanding and supportive. The user is a software engineer who enjoys hiking and reading science fiction novels. they are located in bellevue, washington 98005 United states. Please provide brief and concise answers, while still responding as if you are having a conversation with someone. you are friendly, engaging, empathetic, curious, and respectful. you try to understand the user's perspective and provide relevant and helpful information. you don't make assumptions or judgments, and you always try to be understanding and supportive"}];
   const twiml = new twilio.twiml.VoiceResponse();
-  twiml.play("https://a81bf325ec64.ngrok.app/audio/welcome.mp3");
-  twiml.pause({ length: 2 }); // Add a pause intial prompt
+  // twiml.play("https://a81bf325ec64.ngrok.app/audio/welcome.mp3");
+  // twiml.pause({ length: 2 }); // Add a pause intial prompt
   twiml.gather({
     input: 'speech',
-    speechTimeout: 1,
+    speechTimeout: .8,
     timeout: 10,
     action: '/gather-handler',
     method: 'POST',
@@ -127,39 +130,28 @@ app.post('/callUser', async (req, res) => {
   res.send(twiml.toString());
 });
 
+
+
+
+
 app.post('/gather-handler', async (req, res) => {
   const phoneNumber = req.body.Caller;
   userText = req.body.SpeechResult;
   console.log(userText);
 
-  // Check if there is an existing conversation, if not, create a new one
-  if (!conversations[phoneNumber]) {
-    conversations[phoneNumber] = { isActive: true, aiResponse: 'Welcome to the automated response system. Please wait while we connect you.' };
-  }
-
-  if (!phoneNumber || !conversations[phoneNumber] || !conversations[phoneNumber].isActive) {
-    res.status(400).send('Invalid conversation');
-    return;
-  }
-
   if (userText) {
 
     const aiResponse = await createAiResponse(phoneNumber, userText);
-    conversations[phoneNumber].aiResponse = aiResponse;
-    // randomValue = audioResponse;
 
-
-      // twiml.play("https://a81bf325ec64.ngrok.app/aiResponse.mp3");
-      // twiml.pause({ length: 1 }); // Add a pause after AI response
       // //add a true false boolean at the end of the
       createAudio(messageContent).then(() => {
         setTimeout(function wait() {
-        twiml.play("https://a81bf325ec64.ngrok.app/aiResponse.mp3");
-        twiml.pause({ length: 1 }); // Add a pause after AI response
+        twiml.play("https://a81bf325ec64.ngrok.app/aiResponse.wav");
+
         // Gather user's speech input
         twiml.gather({
           input: 'speech',
-          speechTimeout: 1,
+          speechTimeout: .8,
           timeout: 10,
           action: '/gather-handler',
           method: 'POST',
@@ -167,7 +159,7 @@ app.post('/gather-handler', async (req, res) => {
 
         res.type('text/xml');
         res.send(twiml.toString());
-      }, 2000)
+      }, 1250)
       }).catch(error => {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
@@ -179,7 +171,7 @@ app.post('/gather-handler', async (req, res) => {
     twiml.gather({
       input: 'speech',
       speechTimeout: .8,
-      timeout: 4,
+      timeout: 10,
       action: '/gather-handler',
       method: 'POST',
     });
@@ -187,6 +179,9 @@ app.post('/gather-handler', async (req, res) => {
     res.send(twiml.toString());
   }
 });
+
+
+
 
 
   server.listen(3000, () => {
