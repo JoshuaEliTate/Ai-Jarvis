@@ -76,7 +76,7 @@ async function createAudio(aiText) {
   const audioFile = "aiResponse.wav";
 
   // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
-  const speechConfig = sdk.SpeechConfig.fromSubscription('8eecc57fbd89473c85773181f6371254', 'westus');
+  const speechConfig = sdk.SpeechConfig.fromSubscription(`${process.env.SPEECH_KEY}`, 'westus');
   const audioConfig = sdk.AudioConfig.fromAudioFileOutput(audioFile);
 
   // The language of the voice that speaks.
@@ -124,7 +124,7 @@ app.post('/callUser', async (req, res) => {
     timeout: 10,
     action: '/gather-handler',
     method: 'POST',
-  }).play('https://a81bf325ec64.ngrok.app/audio/howHelp.mp3');
+  }).play(`${process.env.NGROK_IP}/audio/howHelp.mp3`);
 
   res.type('text/xml');
   res.send(twiml.toString());
@@ -146,7 +146,7 @@ app.post('/gather-handler', async (req, res) => {
       // //add a true false boolean at the end of the
       createAudio(messageContent).then(() => {
         setTimeout(function wait() {
-        twiml.play("https://a81bf325ec64.ngrok.app/aiResponse.wav");
+        twiml.play(`${process.env.NGROK_IP}/aiResponse.wav`);
 
         // Gather user's speech input
         twiml.gather({
@@ -189,7 +189,7 @@ app.post('/gather-handler', async (req, res) => {
     const phoneNumber = process.env.RECIPIENT_PHONE_NUMBER;  // Set your phone number here
     twilioClient.calls
       .create({
-        url: 'https://a81bf325ec64.ngrok.app/callUser',  // Make sure to replace this with your public server URL
+        url: `${process.env.NGROK_IP}/callUser`,  // Make sure to replace this with your public server URL
         to: phoneNumber,
         from: process.env.TWILIO_PHONE_NUMBER,  // Your Twilio phone number
       })
