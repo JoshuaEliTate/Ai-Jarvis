@@ -1,7 +1,7 @@
 from elevenlabs import clone, generate, play, set_api_key
 from elevenlabs.api import History
 
-set_api_key("49da97ca577b7decf95707c56790d575")
+set_api_key("")
 
 voice = clone(
     name="Voice Name",
