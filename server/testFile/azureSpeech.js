@@ -9,7 +9,7 @@ require('dotenv').config();
 
     var audioFile = "aiResponse.mp3"
     // This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
-    const speechConfig = sdk.SpeechConfig.fromSubscription('8eecc57fbd89473c85773181f6371254', 'westus');
+    const speechConfig = sdk.SpeechConfig.fromSubscription('', 'westus');
     const audioConfig = sdk.AudioConfig.fromAudioFileOutput(audioFile);
 
     // The language of the voice that speaks.
