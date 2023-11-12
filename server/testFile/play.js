@@ -7,8 +7,8 @@ const data = {
 
 const config = {
   headers: {
-    'AUTHORIZATION': 'Bearer 7ede35d38e9445abb7e8da1a1c279c17',
-    'X-USER-ID': '0Ftau1WTqcdWyezEukIRh7cWOJs2',
+    'AUTHORIZATION': '',
+    'X-USER-ID': '',
     'accept': 'text/event-stream',
     'content-type': 'application/json'
   }
