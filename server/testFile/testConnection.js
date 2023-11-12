@@ -9,7 +9,7 @@ require('dotenv').config()
 const sequelize = new Sequelize({
   database: "aiJarvis_db",
   username: "root",
-  password: "609193jos",
+  password: "",
   host: 'localhost',
   dialect: 'mysql',
   port: 3306,
