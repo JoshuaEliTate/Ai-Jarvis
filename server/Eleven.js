@@ -74,7 +74,7 @@ async function createAiResponse(phoneNumber, userText) {
 }
 
 async function createAudio(aiText) {
-  const url = 'https://api.elevenlabs.io/v1/text-to-speech/rXXkqBiJdKlYp8wOIbM4/stream?optimize_streaming_latency=2';
+  const url = 'https://api.elevenlabs.io/v1/text-to-speech//stream?optimize_streaming_latency=2';
   console.log("audio creation started")
   const headers = {
     'accept': 'audio/mpeg',
