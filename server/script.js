@@ -63,7 +63,7 @@ async function main() {
 
 
 function receiveAudio(aiText) {
-  const url = 'https://api.elevenlabs.io/v1/text-to-speech/rXXkqBiJdKlYp8wOIbM4?optimize_streaming_latency=0';
+  const url = 'https://api.elevenlabs.io/v1/text-to-speech/?optimize_streaming_latency=0';
   const headers = {
     'accept': 'audio/mpeg',
     'xi-api-key': process.env.XI_API_KEY,
