@@ -21,7 +21,7 @@ const app = express();
 const twiml = new twilio.twiml.VoiceResponse();
 const Sequelize = require('sequelize');
 let messages = []
-const sequelize = new Sequelize('aiJarvis_db', 'root', '609193jos', {
+const sequelize = new Sequelize('aiJarvis_db', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
   port: 3306,
@@ -125,7 +125,7 @@ async function createAiResponse(phoneNumber, userText) {
 }
 
 async function createAudio(aiText) {
-  const url = 'https://api.elevenlabs.io/v1/text-to-speech/rXXkqBiJdKlYp8wOIbM4/stream?optimize_streaming_latency=2';
+  const url = 'https://api.elevenlabs.io/v1/text-to-speech//stream?optimize_streaming_latency=2';
 
   const headers = {
     'accept': 'audio/mpeg',
